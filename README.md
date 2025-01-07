@@ -21,7 +21,10 @@ You can use the following for the model: ``objcopy -I binary -O binary --reverse
 
 ### Changes
 
-I've just changed what's stopped it from compiling.
+I've just changed what's stopped it from compiling, this is namely:
+
+- swap ``sinf`` to ``(float)sin``, etc
+- swap ``clock_gettime`` for ``gettimeofday``
 
 
 
