@@ -1,8 +1,32 @@
-## llama2.c
+## sollama.c
 
-<p align="center">
-  <img src="assets/llama_cute.jpg" width="300" height="300" alt="Cute Llama">
-</p>
+llama2.c, able to be compiled on solaris 2.6, under GCC.
+
+Special thanks to the team over at exo for llama95, the inspiration behind this.
+
+### Compiling
+
+You'll need to get gcc - I'm using gcc 3.4.6 from a sunfreeware mirror. Make sure to add ``-std=gnu99`` if compiling manually.
+
+Note there are some warnings; you should be able to safely ignore these.
+
+### Issue with models
+
+One big issue is that all tokenizers/models are in little endian - you need to convert these to big endian before using.
+
+I've provided a script in Python `` to_be.py `` for the tokenizer - simply input the tokenizer path, vocab size and output path.
+
+You can use the following for the model: ``objcopy -I binary -O binary --reverse-bytes=4 [in] [out]``
+
+
+### Changes
+
+I've just changed what's stopped it from compiling.
+
+
+
+
+## llama2.c
 
 Have you ever wanted to inference a baby [Llama 2](https://ai.meta.com/llama/) model in pure C? No? Well, now you can!
 

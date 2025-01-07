@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/time.h>
 #include <math.h>
 #include <string.h>
 #include <fcntl.h>
@@ -187,7 +188,7 @@ void rmsnorm(float* o, float* x, float* weight, int size) {
     }
     ss /= size;
     ss += 1e-5f;
-    ss = 1.0f / sqrtf(ss);
+    ss = 1.0f / (float)sqrt(ss);
     // normalize and scale
     for (int j = 0; j < size; j++) {
         o[j] = weight[j] * (ss * x[j]);
@@ -205,7 +206,7 @@ void softmax(float* x, int size) {
     // exp and sum
     float sum = 0.0f;
     for (int i = 0; i < size; i++) {
-        x[i] = expf(x[i] - max_val);
+        x[i] = (float)exp(x[i] - max_val);
         sum += x[i];
     }
     // normalize
@@ -264,10 +265,10 @@ float* forward(Transformer* transformer, int token, int pos) {
         // RoPE relative positional encoding: complex-valued rotate q and k in each head
         for (int i = 0; i < dim; i+=2) {
             int head_dim = i % head_size;
-            float freq = 1.0f / powf(10000.0f, head_dim / (float)head_size);
+            float freq = 1.0f / (float)pow(10000.0f, head_dim / (float)head_size);
             float val = pos * freq;
-            float fcr = cosf(val);
-            float fci = sinf(val);
+            float fcr = (float)cos(val);
+            float fci = (float)sin(val);
             int rotn = i < kv_dim ? 2 : 1; // how many vectors? 2 = q & k, 1 = q only
             for (int v = 0; v < rotn; v++) {
                 float* vec = v == 0 ? s->q : s->k; // the vector to rotate (query or key)
@@ -295,7 +296,7 @@ float* forward(Transformer* transformer, int token, int pos) {
                 for (int i = 0; i < head_size; i++) {
                     score += q[i] * k[i];
                 }
-                score /= sqrtf(head_size);
+                score /= (float)sqrt(head_size);
                 // save the score to the attention buffer
                 att[t] = score;
             }
@@ -338,7 +339,7 @@ float* forward(Transformer* transformer, int token, int pos) {
         for (int i = 0; i < hidden_dim; i++) {
             float val = s->hb[i];
             // silu(x)=x*σ(x), where σ(x) is the logistic sigmoid
-            val *= (1.0f / (1.0f + expf(-val)));
+            val *= (1.0f / (1.0f + (float)exp(-val)));
             // elementwise multiply with w3(x)
             val *= s->hb2[i];
             s->hb[i] = val;
@@ -718,9 +719,9 @@ int sample(Sampler* sampler, float* logits) {
 
 long time_in_ms() {
     // return time in milliseconds, for benchmarking the model speed
-    struct timespec time;
-    clock_gettime(CLOCK_REALTIME, &time);
-    return time.tv_sec * 1000 + time.tv_nsec / 1000000;
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    return time.tv_sec * 1000 + time.tv_usec / 1000;
 }
 
 // ----------------------------------------------------------------------------
