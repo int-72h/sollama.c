@@ -1,7 +1,7 @@
 import struct
 from sys import argv
-if argv.len() != 4:
-	print("to_be: tokenizer_in token_amt tokenizer_out" 
+if len(argv) != 4:
+	print("to_be: tokenizer_in vocab_size tokenizer_out")
 tok_file = open(argv[1],'rb')
 max_length = int.from_bytes(tok_file.read(4))
 barr = struct.pack('>i',max_length)
